@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CAMPESENA</title>
+  <link rel="shortcut icon" href="portada.png" type="image/x-icon">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f2f5;
+      align-items: center;
+      display: flex;
+      flex-flow: column nowrap;
+      height: 100vh;
+      justify-content: center;
+    }
+
+    /* Estilo del botón flotante de chat */
+    .chat-button {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background-color: #6c6c6c;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+      z-index: 1000; /* Asegúrate de que esté por encima de otros elementos */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden; /* Asegura que el tooltip no se salga del botón */
+    }
+
+    .chat-icon {
+      width: 80%;
+      height: auto;
+      border-radius: 50%;
+      transition: transform 0.3s ease; /* Para el efecto de escala */
+    }
+
+    .chat-button:hover .chat-icon {
+      transform: scale(1.1); /* Efecto de escalado al pasar el mouse */
+    }
+
+    .chat-button:hover {
+      background-color: #17a700;
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Estilo del tooltip */
+    .tooltip {
+      display: none;
+      position: absolute;
+      bottom: 80px; /* Ajusta esta posición para mover el tooltip hacia arriba */
+      right: 50%; /* Alineación horizontal al centro del botón */
+      transform: translateX(50%); /* Centra el tooltip sobre el botón */
+      background-color: rgba(255, 255, 255, 0.9); /* Color más claro */
+      color: #333; /* Texto oscuro para mejor contraste */
+      padding: 10px 15px; /* Mejora el espaciado interno */
+      border-radius: 8px; /* Borde más redondeado */
+      font-size: 14px;
+      z-index: 10;
+      white-space: nowrap; /* Evita que el texto se rompa en varias líneas */
+      transition: opacity 0.3s, transform 0.3s;
+      opacity: 0; /* Inicialmente oculto */
+      transform: translateX(50%) translateY(-10px); /* Mueve el tooltip hacia arriba */
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra más suave */
+      font-weight: bold; /* Hacer el texto más destacado */
+      font-family: 'Arial', sans-serif; /* Tipo de letra más legible */
+      text-align: center; /* Centrar texto */
+      letter-spacing: 0.5px; /* Espaciado entre letras */
+      animation: fadeIn 0.3s; /* Animación de entrada */
+    }
+
+    /* Animación de entrada */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateX(50%) translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(50%) translateY(0);
+      }
+    }
+
+    /* Muestra el tooltip al pasar el mouse */
+    .chat-button:hover .tooltip {
+      display: block;
+      opacity: 1; /* Hacer visible el tooltip */
+      transform: translateX(50%) translateY(0); /* Lleva el tooltip a su posición original */
+    }
+
+    /* Estilo del contenedor del chat */
+    .chat-container {
+      display: none;
+      position: fixed;
+      bottom: 90px;
+      right: 20px;
+      width: 350px;
+      height: 600px;
+      border: 2px solid #6a6a6a;
+      border-radius: 10px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+      background-color: #ffffff;
+      animation: slideUp 0.4s ease;
+      overflow: hidden;
+    }
+
+    /* Animación de aparición */
+    @keyframes slideUp {
+      from {
+        transform: translateY(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .chat-container iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* Encabezado del chat */
+    .chat-header {
+      background-color: #007bff;
+      color: white;
+      padding: 10px;
+      text-align: center;
+      font-size: 18px;
+      position: relative;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .chat-header .close-btn {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .chat-header .close-btn:hover {
+      color: #f0f2f5;
+    }
+
+    span.a1 {
+      color: blueviolet;
+      font-size: 1.5em;
+    }
+
+    span.a2 {
+      color: #17a700;
+      font-size: 1.5em;
+    }
+
+    span.a3 {
+      color: #000000;
+      font-size: 1.5em;
+    }
+
+    /* Estilos para pantallas móviles */
+    @media (max-width: 600px) {
+      #chatbot {
+        width: 60%; /* Asegura que ocupe el 100% del ancho del dispositivo */
+        height: 80vh; /* Ajusta la altura a un 80% de la ventana de visualización */
+        font-size: 14px; /* Reduce el tamaño de la fuente para que sea legible */
+      }
+
+      /* Asegura que otros elementos se ajusten bien en pantallas pequeñas */
+      #chatbot-header, #chatbot-footer {
+        padding: 10px;
+      }
+
+      .chat-message {
+        font-size: 13px; /* Ajuste en los mensajes del chatbot */
+      }
+    }
+
+    .a4 {
+      color: red;
+    }
+    .a5 {
+      color: white; /* Asegura que el texto sea legible */
+      font-weight: bold; /* Resalta el texto */
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-button" id="chatButton">
+    <img src="LOGO.png" alt="Chat" class="chat-icon">
+    <div class="tooltip">
+      <span class="a4">¡</span>
+      <span class="a5">DETERMINA LA SALUD DE TU ANIMAL CON NUESTRO CHAT-BOT</span>
+      <span class="a4">¡</span>
+    </div>
+  </div>
+
+  <!-- Contenedor del chat con encabezado -->
+  <div class="chat-container" id="chatContainer">
+    <div class="chat-header">
+      <span class="3"> Chat de</span> <span class="a1">Campe</span><span class="a2">sena</span>
+      <button class="close-btn" id="closeChat">&times;</button>
+    </div>
+    <iframe src="chat-bot.html"></iframe>
+  </div>
+
+  <script>
+    const chatButton = document.getElementById("chatButton");
+    const chatContainer = document.getElementById("chatContainer");
+    const closeChat = document.getElementById("closeChat");
+    const tooltip = chatButton.querySelector('.tooltip');
+
+    // Mostrar u ocultar el chat al hacer clic en el botón
+    chatButton.addEventListener("click", function() {
+      chatContainer.style.display = chatContainer.style.display === "none" ? "block" : "none";
+      tooltip.style.display = "none"; // Ocultar tooltip cuando se abre el chat
+    });
+
+    // Ocultar el chat al hacer clic en el botón de cerrar
+    closeChat.addEventListener("click", function() {
+      chatContainer.style.display = "none";
+    });
+
+    // Mostrar el tooltip al pasar el mouse
+    chatButton.addEventListener("mouseover", function() {
+      tooltip.style.display = 'block';
+      tooltip.style.opacity = '1'; // Asegura que el tooltip sea visible
+    });
+
+    // Ocultar el tooltip al salir el mouse
+    chatButton.addEventListener("mouseout", function() {
+      if (chatContainer.style.display !== "block") { // Solo oculta si el chat no está abierto
+        tooltip.style.display = 'none';
+      }
+    });
+
+    // Asegurarse de que el tooltip se oculte si se hace clic en el botón de cerrar
+    closeChat.addEventListener("click", function() {
+      tooltip.style.display = 'none'; // Asegura que el tooltip se oculta si se cierra el chat
+    });
+  </script>
+</body>
+</html>
